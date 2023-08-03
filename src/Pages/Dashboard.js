@@ -15,23 +15,6 @@ import NoTransactions from "../Components/NoTransactions";
 
 
 const Dashboard = () => {
-  // const transaction =[
-  //   {
-  //     type:"income",
-  //     amount: 1200,
-  //     tag: "salary",
-  //     name: "income",
-  //     data: "2023-05-23",
-  //   },
-  //   {
-  //     type:"expense",
-  //     amount: 200,
-  //     tag: "food",
-  //     name: "expense",
-  //     data: "2023-08-23",
-  //   },
-  // ]
-
   const [user] = useAuthState(auth);
   const [isExpenseModalVisible, setIsExpenseModalVisible] = useState(false);
   const [isIncomeModalVisible, setIsIncomeModalVisible] = useState(false);
@@ -75,7 +58,7 @@ const Dashboard = () => {
         transaction
       );
       console.log("Document written with ID: ", docRef.id);
-      if(!many) toast.success("Transaction Added!");
+      if (!many) toast.success("Transaction Added!");
       let newArray = transactions;
       newArray.push(transactions);
       setTransactions(newArray);
@@ -83,7 +66,7 @@ const Dashboard = () => {
 
     } catch (e) {
       console.error("Error adding document: ", e);
-      if(!many) toast.error("Couldn't add transaction");
+      if (!many) toast.error("Couldn't add transaction");
     }
   }
 
@@ -91,10 +74,10 @@ const Dashboard = () => {
     fetchTransactions();
   }, [user]);
 
-  useEffect(()=>{
+  useEffect(() => {
     calculateBalance();
   }, [transactions])
-  
+
   const calculateBalance = () => {
     let incomeTotal = 0;
     let expensesTotal = 0;
@@ -129,6 +112,10 @@ const Dashboard = () => {
     setLoading(false);
   }
 
+  let sortedTransactions = transactions.sort((a, b) => {
+    return new Date(a.date) - new Date(b.date);
+  })
+
   return (
     <div>
       <Header />
@@ -137,13 +124,17 @@ const Dashboard = () => {
       ) : (
         <>
           <Cards
-          income={income}
-          expenses={expenses}
-          totalBalance={totalBalance}
+            income={income}
+            expenses={expenses}
+            totalBalance={totalBalance}
             showExpenseModal={showExpenseModal}
             showIncomeModal={showIncomeModal}
           />
-          {transactions.length != 0 ? <Charts /> : <NoTransactions />}
+          {transactions && transactions.length !== 0 ? (
+            <Charts sortedTransactions={sortedTransactions} />
+          ) : (
+            <NoTransactions />
+          )}
           <AddExpense
             isExpenseModalVisible={isExpenseModalVisible}
             handleExpenseCancel={handleExpenseCancel}
@@ -154,9 +145,9 @@ const Dashboard = () => {
             handleIncomeCancel={handleIncomeCancel}
             onFinish={onFinish}
           />
-          <TransactionTable transactions={transactions}  
-          addTransaction={ addTransaction}
-          fetchTransactions={fetchTransactions}/>
+          <TransactionTable transactions={transactions}
+            addTransaction={addTransaction}
+            fetchTransactions={fetchTransactions} />
         </>
       )}
     </div>
